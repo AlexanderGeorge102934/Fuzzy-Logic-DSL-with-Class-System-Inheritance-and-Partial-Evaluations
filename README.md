@@ -452,9 +452,7 @@ Conditions are used in conditional expressions and statements.
   ```
 
 ## Project Structure
-
-- `src/main/scala/FuzzyLogicDSL.scala` – Main code for the DSL implementation.
-- `src/main/scala/Main.scala` – Main program demonstrating usage of the DSL.
+- `src/main/scala/main.scala` – Main program demonstrating usage of the DSL.
 - `src/test/scala/FuzzyLogicDSLTest.scala` – Test suite for the DSL.
 - `build.sbt` – SBT configuration file for building and managing dependencies.
 
@@ -508,101 +506,6 @@ Conditions are used in conditional expressions and statements.
   ```bash
   sbt test
   ```
-
-## Examples
-
-### Partial Evaluation and Conditional Tests
-
-```scala
-import FuzzyLogicDSL._
-
-// Partial evaluation of an expression
-val expr = MULT(FuzzyValue(3), MULT(ADD(FuzzyValue(5), FuzzyValue(1)), FuzzyVariable("var")))
-val partialExpr = expr.partialEval()
-println(s"Partial Evaluation of expression: $partialExpr")
-// Output: MULT(FuzzyValue(3.0), MULT(FuzzyValue(6.0), FuzzyVariable(var)))
-
-// Assign "var" later
-globalEnv("var") = 2.0
-val evaluatedExpr = expr.eval()
-println(s"Full Evaluation after assigning var: $evaluatedExpr")
-// Output: 36.0 (3 * 6 * 2)
-
-// Conditional expression example
-val condExpr = IFTRUE(GREATEREQUAL(MULT(FuzzyValue(15), FuzzyVariable("VAR")), ADD(FuzzyValue(2), FuzzyVariable("var1"))))(
-  ADD(FuzzyVariable("VAR"), FuzzyValue(3))
-)(
-  FuzzyValue(0.0)
-)
-val partialCondExpr = condExpr.partialEval()
-println(s"Partial Evaluation of Conditional Expression: $partialCondExpr")
-
-// Assign values to "VAR" and "var1"
-globalEnv("VAR") = 0.2
-globalEnv("var1") = 0.1
-
-val evaluatedCondExpr = condExpr.eval()
-println(s"Evaluation of Conditional Expression after assigning variables: $evaluatedCondExpr")
-// Output: 1.0 (due to ADD cap at 1.0)
-```
-
-### Class Inheritance and Method Invocation
-
-```scala
-import FuzzyLogicDSL._
-
-// Define Base Class
-val BaseClass = Class("Base") {
-  ClassVar("var", "double")
-
-  DefineMethod("m1",
-    List(Parameter("p1", "double"), Parameter("p2", "double")),
-    List(
-      Assign("somevar", MULT(FuzzyVariable("var"), FuzzyVariable("p1"))),
-      Return(MULT(FuzzyVariable("somevar"), FuzzyValue(2.0)))
-    )
-  )
-}
-
-// Create an instance of BaseClass
-val baseInstance = CreateNew(BaseClass)
-
-// Partially invoke method m1
-val partialResult = PartialInvokeMethod(baseInstance, "m1", Map("p1" -> Right(FuzzyVariable("x")), "p2" -> Left(0.5)))
-println(s"Partial Invocation Result: $partialResult")
-// Output: Right(partially evaluated expression)
-
-// Assign values and fully invoke the method
-baseInstance.variables("var") = 0.3
-val fullResult = InvokeMethod(baseInstance, "m1", Map("p1" -> 1.0, "p2" -> 0.5))
-println(s"Full Invocation Result after assigning variables: $fullResult")
-// Output: 0.6
-```
-
-### Using Gates and Scopes
-
-```scala
-import FuzzyLogicDSL._
-
-// Assign global variable
-Assign(FuzzyVariable("X"), FuzzyValue(0.2)) // Global assignment
-
-// Assign variables in a gate scope
-Scope(Gate("logicGate1")) {
-  Assign(FuzzyVariable("A"), FuzzyValue(0.5))
-  Assign(FuzzyVariable("B"), FuzzyValue(0.7))
-}
-
-// Assign an expression to a gate and evaluate it
-Assign(Gate("logicGate1"), ADD(FuzzyVariable("A"), FuzzyVariable("B")))(using Gate("logicGate1"))
-val gateResult = EvaluateGateExpression("logicGate1")
-println(s"Evaluation of logicGate1: $gateResult")
-// Output: 1.0 (due to ADD cap at 1.0)
-
-// Test variable values
-println(s"Value of X in global scope: ${TestGate("global", "X")}")
-// Output: 0.2
-```
 
 ## Limitations and Rules
 
