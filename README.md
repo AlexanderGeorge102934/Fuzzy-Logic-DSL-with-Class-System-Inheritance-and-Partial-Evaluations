@@ -1,4 +1,4 @@
-# Fuzzy Logic DSL with Class System and Inheritance
+# Fuzzy Logic DSL with Class System, Inheritance, and Partial Evaluations
 
 ## Overview
 
